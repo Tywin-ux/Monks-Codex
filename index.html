@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Monk's Codex">
+<meta name="theme-color" content="#080610">
+<meta name="description" content="The Monk's Codex — Daily discipline tracker and life organizer">
+<link id="pwaManifest" rel="manifest">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<title>The Monk's Codex</title>
+<style>
+:root{
+  --bg:#080610;--bg2:#0d0b18;--panel:#11101f;
+  --border:#2a2245;--border2:#3d3468;
+  --gold:#c9a84c;--gold-bright:#e8c96a;--gold-dim:#7a6030;--gold-faint:rgba(201,168,76,0.08);
+  --teal:#4a9e9e;--teal-dim:#2a5f5f;
+  --red:#a02030;--red-dim:#6a1020;--red-light:#f0a0b0;
+  --purple:#7060b0;--purple-dim:#3d3468;--purple-light:#b09cd8;
+  --green:#50c878;--green-dim:#1a4a28;
+  --text:#d8d0f0;--text-dim:#9088b0;--text-muted:#504870;
+  --h-font:'Cinzel',serif;--b-font:'Crimson Text',serif;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --nav-h:62px;
+  --header-h:auto;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--b-font);overscroll-behavior:none;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 10%,rgba(112,96,176,0.09) 0%,transparent 55%),radial-gradient(ellipse at 85% 90%,rgba(74,158,158,0.06) 0%,transparent 55%);pointer-events:none;z-index:0;}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;position:relative;z-index:1;padding-top:var(--safe-t);}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(180deg,#100d22 0%,#0a0816 100%);border-bottom:1px solid var(--border2);padding:10px 16px 8px;flex-shrink:0;position:relative;}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
+.hdr-row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.hdr-left{}
+.hdr-eyebrow{font-family:var(--h-font);font-size:0.42rem;letter-spacing:0.3em;color:var(--text-muted);}
+.hdr-title{font-family:var(--h-font);font-size:1.25rem;font-weight:700;color:var(--gold);letter-spacing:0.06em;text-shadow:0 0 28px rgba(201,168,76,0.35);line-height:1.1;}
+.hdr-subtitle{font-family:var(--b-font);font-style:italic;font-size:0.72rem;color:var(--text-muted);}
+.hdr-right{text-align:right;}
+.hdr-date{font-family:var(--h-font);font-size:0.44rem;color:var(--text-muted);letter-spacing:0.04em;}
+.hdr-stats{display:flex;flex-direction:column;align-items:flex-end;gap:3px;margin-top:4px;}
+.prog-row{display:flex;align-items:center;gap:6px;}
+.prog-bar{width:64px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:3px;transition:width 0.4s;}
+.prog-fill.done{background:linear-gradient(90deg,var(--green-dim),var(--green));}
+.prog-lbl{font-family:var(--h-font);font-size:0.5rem;color:var(--gold);}
+.prog-lbl.done{color:var(--green);}
+.hdr-focus{font-family:var(--h-font);font-size:0.46rem;color:var(--gold-dim);}
+
+/* ESSENCE BAR */
+.ess-bar{display:flex;align-items:center;gap:8px;background:rgba(80,200,120,0.05);border:1px solid rgba(80,200,120,0.18);padding:7px 12px;margin-top:7px;}
+.ess-icon{font-size:1rem;flex-shrink:0;}
+.ess-lbl{font-family:var(--h-font);font-size:0.44rem;letter-spacing:0.12em;color:var(--green);flex:1;}
+.ess-ctrl{display:flex;align-items:center;gap:6px;}
+.ess-btn{width:32px;height:32px;border:1px solid var(--green-dim);background:transparent;color:var(--green);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:2px;}
+.ess-inp{width:56px;background:rgba(80,200,120,0.08);border:1px solid var(--green-dim);color:var(--green);font-family:var(--h-font);font-size:0.88rem;padding:4px 6px;text-align:center;outline:none;-webkit-appearance:none;border-radius:0;}
+.ess-mg{font-family:var(--h-font);font-size:0.44rem;color:var(--green);letter-spacing:0.06em;}
+
+/* QUOTE BAR */
+.quote-bar{margin-top:7px;border-left:2px solid var(--gold-dim);padding:5px 8px 5px 10px;background:rgba(201,168,76,0.04);}
+.quote-text{font-family:var(--b-font);font-style:italic;color:var(--gold);font-size:0.8rem;line-height:1.45;}
+.quote-author{font-family:var(--h-font);color:var(--text-muted);font-size:0.44rem;letter-spacing:0.1em;margin-top:2px;}
+
+/* ── BOTTOM NAV ── */
+.bot-nav{display:flex;background:var(--bg2);border-top:1px solid var(--border2);flex-shrink:0;padding-bottom:var(--safe-b);height:calc(var(--nav-h) + var(--safe-b));position:relative;z-index:50;}
+.bot-nav::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
+.nav-btn{flex:1;border:none;background:transparent;color:var(--text-muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+.nav-btn.active{color:var(--gold);}
+.nav-ico{font-size:1.2rem;line-height:1;}
+.nav-lbl{font-family:var(--h-font);font-size:0.38rem;letter-spacing:0.1em;}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.page{padding:14px 14px 16px;}
+
+/* ── SECTION TITLES ── */
+.sec-title{font-family:var(--h-font);font-size:0.6rem;letter-spacing:0.25em;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+.sec-title-left{display:flex;align-items:center;gap:8px;}
+
+/* ── CARDS (habits, quests) ── */
+.card{display:flex;align-items:center;gap:10px;padding:13px 12px;background:linear-gradient(135deg,rgba(17,16,31,0.95),rgba(11,9,22,0.95));border:1px solid var(--border);border-left:3px solid var(--border2);margin-bottom:7px;min-height:52px;transition:all 0.2s;}
+.card.done-card{opacity:0.5;border-left-color:var(--text-muted);}
+.card.active-card{border-left-color:var(--gold);box-shadow:-2px 0 14px rgba(201,168,76,0.18);}
+.card.selected-card{border-left-color:var(--green);background:linear-gradient(135deg,rgba(80,200,120,0.06),rgba(11,9,22,0.95));}
+.card-check{width:22px;height:22px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;}
+.card-label{flex:1;font-family:var(--b-font);font-size:1rem;color:var(--text);min-width:0;line-height:1.3;}
+.card.done-card .card-label{text-decoration:line-through;color:var(--text-muted);}
+.card-meta{font-family:var(--h-font);font-size:0.45rem;color:var(--text-muted);background:rgba(42,34,69,0.5);padding:3px 7px;border:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
+.card-meta.lit{color:var(--gold-dim);border-color:var(--gold-dim);}
+.card-btn{height:36px;padding:0 12px;cursor:pointer;font-family:var(--h-font);font-size:0.46rem;border:1px solid;flex-shrink:0;letter-spacing:0.06em;background:transparent;white-space:nowrap;}
+.btn-time{color:var(--gold-dim);border-color:var(--gold-dim);}
+.btn-time.rec{background:var(--gold);color:var(--bg);border-color:var(--gold);}
+.btn-del{color:var(--text-muted);border-color:var(--border);font-size:0.7rem;padding:0 10px;}
+.btn-del:hover{color:var(--red-light);border-color:var(--red-dim);}
+.btn-plan{color:var(--teal);border-color:var(--teal-dim);}
+.btn-pick{color:var(--green);border-color:var(--green-dim);min-width:52px;}
+.btn-pick.picked{background:rgba(80,200,120,0.15);border-color:var(--green);}
+.btn-sm{height:30px;padding:0 10px;cursor:pointer;font-family:var(--h-font);font-size:0.42rem;border:1px solid;flex-shrink:0;background:transparent;letter-spacing:0.05em;}
+
+/* ── ADD ROW ── */
+.add-row{display:flex;gap:6px;margin-top:10px;}
+.add-inp{flex:1;background:rgba(11,9,22,0.95);border:1px solid var(--border2);border-bottom:2px solid var(--gold-dim);color:var(--text);padding:12px 12px;font-family:var(--b-font);font-size:1rem;outline:none;min-width:0;-webkit-appearance:none;border-radius:0;}
+.add-inp:focus{border-bottom-color:var(--gold);}
+.add-inp::placeholder{color:var(--text-muted);font-style:italic;}
+.add-btn{padding:12px 16px;background:linear-gradient(135deg,#1a1630,#13112a);color:var(--gold);border:1px solid var(--gold-dim);font-family:var(--h-font);font-size:0.52rem;font-weight:600;cursor:pointer;letter-spacing:0.1em;flex-shrink:0;}
+
+/* ── DISCIPLINE RESET BADGE ── */
+.reset-badge{font-family:var(--h-font);font-size:0.4rem;letter-spacing:0.1em;color:var(--green);background:rgba(80,200,120,0.1);border:1px solid var(--green-dim);padding:2px 7px;}
+
+/* ── QUEST DAY SECTION ── */
+.today-quests-box{background:rgba(80,200,120,0.04);border:1px solid rgba(80,200,120,0.2);padding:12px;margin-bottom:16px;}
+.tq-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.tq-title{font-family:var(--h-font);font-size:0.56rem;letter-spacing:0.2em;color:var(--green);}
+.tq-count{font-family:var(--h-font);font-size:0.5rem;color:var(--text-muted);}
+.tq-empty{font-family:var(--b-font);font-style:italic;color:var(--text-muted);font-size:0.88rem;padding:8px 0;}
+.backlog-label{font-family:var(--h-font);font-size:0.52rem;letter-spacing:0.2em;color:var(--text-muted);margin-bottom:10px;padding-top:6px;display:flex;align-items:center;gap:8px;}
+
+/* ── OATHS ── */
+.oath-card{border:1px solid var(--border2);border-left:3px solid var(--purple-dim);background:linear-gradient(135deg,rgba(17,16,31,0.95),rgba(10,8,20,0.95));padding:12px 14px;margin-bottom:8px;}
+.oath-card.overdue-card{border-left-color:var(--red-dim);}
+.oath-card.done-oc{opacity:0.45;border-left-color:var(--text-muted);}
+.oc-top{display:flex;align-items:flex-start;gap:10px;}
+.oc-check{width:22px;height:22px;accent-color:var(--purple-light);cursor:pointer;flex-shrink:0;margin-top:2px;}
+.oc-label{flex:1;font-family:var(--b-font);font-size:1rem;color:var(--text);font-weight:600;line-height:1.3;}
+.oath-card.done-oc .oc-label{text-decoration:line-through;color:var(--text-muted);}
+.oc-desc{font-family:var(--b-font);font-style:italic;font-size:0.82rem;color:var(--text-dim);margin-top:5px;line-height:1.45;margin-left:32px;}
+.oc-meta{display:flex;align-items:center;gap:6px;margin-top:7px;margin-left:32px;flex-wrap:wrap;}
+.oc-tag{font-family:var(--h-font);font-size:0.44rem;letter-spacing:0.05em;padding:3px 8px;border:1px solid var(--purple-dim);color:var(--purple-light);background:rgba(112,96,176,0.1);}
+.oc-tag.ov{border-color:var(--red-dim);color:var(--red-light);background:rgba(160,32,48,0.1);}
+.oc-tag.soon{border-color:var(--gold-dim);color:var(--gold);}
+.oc-tag.cat{border-color:var(--teal-dim);color:var(--teal);}
+.oc-sworn{font-family:var(--h-font);font-size:0.4rem;color:var(--text-muted);}
+.add-oath-btn{width:100%;padding:14px;border:1px dashed var(--border2);background:transparent;color:var(--purple-light);font-family:var(--h-font);font-size:0.52rem;letter-spacing:0.15em;cursor:pointer;margin-top:8px;}
+.oath-form{background:rgba(11,9,22,0.95);border:1px solid var(--border2);padding:14px;margin-bottom:14px;}
+.oath-form-title{font-family:var(--h-font);font-size:0.55rem;letter-spacing:0.2em;color:var(--purple-light);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.form-row{display:flex;flex-direction:column;gap:5px;margin-bottom:11px;}
+.form-lbl{font-family:var(--h-font);font-size:0.46rem;letter-spacing:0.14em;color:var(--text-muted);}
+.form-inp,.form-ta{background:rgba(6,4,14,0.95);border:1px solid var(--border2);border-bottom:2px solid var(--purple-dim);color:var(--text);padding:10px 12px;font-family:var(--b-font);font-size:0.95rem;outline:none;-webkit-appearance:none;border-radius:0;width:100%;}
+.form-ta{min-height:70px;resize:vertical;}
+.form-2col{display:flex;gap:8px;}
+.form-2col .form-row{flex:1;}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
+.btn-oath-save{padding:10px 16px;background:rgba(112,96,176,0.2);color:var(--purple-light);border:1px solid var(--purple-dim);font-family:var(--h-font);font-size:0.52rem;letter-spacing:0.1em;cursor:pointer;}
+.btn-oath-cancel{padding:10px 14px;background:transparent;color:var(--text-muted);border:1px solid var(--border);font-family:var(--h-font);font-size:0.5rem;cursor:pointer;}
+
+/* ── CHARACTER / CODEX ── */
+.char-box{background:linear-gradient(135deg,rgba(17,16,31,0.95),rgba(10,8,20,0.95));border:1px solid var(--border2);border-top:2px solid var(--gold-dim);padding:14px;margin-bottom:14px;}
+.char-name{font-family:var(--h-font);font-size:1.1rem;color:var(--gold);margin-bottom:2px;}
+.char-class{font-family:var(--b-font);font-style:italic;font-size:0.88rem;color:var(--purple-light);margin-bottom:8px;}
+.char-bio{font-family:var(--b-font);font-size:0.9rem;color:var(--text-dim);line-height:1.6;white-space:pre-wrap;}
+.char-edit-ta{width:100%;background:rgba(6,4,14,0.95);border:1px solid var(--border2);border-bottom:2px solid var(--gold-dim);color:var(--text);padding:10px;font-family:var(--b-font);font-size:0.9rem;outline:none;resize:vertical;min-height:110px;-webkit-appearance:none;border-radius:0;line-height:1.6;}
+.char-btn{padding:9px 16px;background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid var(--gold-dim);font-family:var(--h-font);font-size:0.5rem;cursor:pointer;margin-top:8px;letter-spacing:0.1em;}
+.virtues-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px;}
+.virtue{background:rgba(112,96,176,0.08);border:1px solid var(--border);padding:10px 12px;}
+.virtue-name{font-family:var(--h-font);font-size:0.44rem;letter-spacing:0.14em;color:var(--gold-dim);margin-bottom:4px;}
+.virtue-val{font-family:var(--b-font);font-size:0.9rem;color:var(--text);}
+
+/* QUOTES MANAGER */
+.quote-mgr{margin-bottom:14px;}
+.quote-list{margin-bottom:10px;}
+.quote-item{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:rgba(11,9,22,0.95);border:1px solid var(--border);border-left:2px solid var(--gold-dim);margin-bottom:6px;}
+.qi-text{flex:1;font-family:var(--b-font);font-style:italic;font-size:0.88rem;color:var(--gold);line-height:1.4;}
+.qi-author{font-family:var(--h-font);font-size:0.42rem;color:var(--text-muted);margin-top:2px;}
+.qi-del{font-size:0.7rem;padding:4px 8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-family:var(--h-font);flex-shrink:0;margin-top:2px;}
+.quote-add-row{display:flex;flex-direction:column;gap:6px;}
+.quote-add-inp{background:rgba(6,4,14,0.95);border:1px solid var(--border2);border-bottom:2px solid var(--gold-dim);color:var(--text);padding:10px 12px;font-family:var(--b-font);font-size:0.95rem;outline:none;-webkit-appearance:none;border-radius:0;width:100%;}
+.quote-add-inp::placeholder{color:var(--text-muted);font-style:italic;}
+.quote-add-btn{padding:10px;background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid var(--gold-dim);font-family:var(--h-font);font-size:0.52rem;cursor:pointer;letter-spacing:0.1em;}
+
+/* EXPORT */
+.export-btn{display:flex;align-items:center;justify-content:center;padding:13px;background:rgba(74,158,158,0.08);border:1px solid var(--teal-dim);color:var(--teal);font-family:var(--h-font);font-size:0.5rem;letter-spacing:0.14em;cursor:pointer;width:100%;margin-bottom:7px;}
+
+/* ── LOG ── */
+.log-total-box{padding:12px 14px;background:linear-gradient(135deg,rgba(13,11,24,0.95),rgba(8,6,16,0.95));border:1px solid var(--border2);border-top:2px solid var(--gold-dim);display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.log-total-lbl{font-family:var(--h-font);font-size:0.44rem;letter-spacing:0.18em;color:var(--text-muted);}
+.log-total-val{font-family:var(--h-font);font-size:1.1rem;color:var(--gold);}
+.week-ess{padding:10px 12px;background:rgba(80,200,120,0.05);border:1px solid rgba(80,200,120,0.18);margin-bottom:14px;}
+.week-ess-title{font-family:var(--h-font);font-size:0.44rem;letter-spacing:0.16em;color:var(--green);margin-bottom:8px;}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.wday{text-align:center;}
+.wday-name{font-family:var(--h-font);font-size:0.36rem;color:var(--text-muted);}
+.wday-val{font-family:var(--h-font);font-size:0.7rem;color:var(--green);margin-top:2px;}
+.wday-val.zero{color:var(--text-muted);}
+.log-day-block{margin-bottom:20px;}
+.log-day-hdr{font-family:var(--h-font);font-size:0.46rem;letter-spacing:0.16em;color:var(--text-muted);margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;}
+.log-day-hdr.tod{color:var(--gold);border-bottom-color:var(--gold-dim);}
+.log-entry{margin-bottom:11px;}
+.log-ent-row{display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px;}
+.log-ent-name{font-family:var(--b-font);color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px;}
+.log-ent-time{font-family:var(--h-font);font-size:0.72rem;color:var(--text-muted);flex-shrink:0;}
+.log-ent-time.tod{color:var(--gold);}
+.log-bar-bg{height:3px;background:rgba(42,34,69,0.5);}
+.log-bar-fill{height:100%;background:rgba(112,96,176,0.5);}
+.log-bar-fill.tod{background:linear-gradient(90deg,var(--gold-dim),var(--gold));}
+.log-pct{text-align:right;font-family:var(--h-font);font-size:0.4rem;color:var(--text-muted);margin-top:2px;}
+
+/* ── DAY PLANNER ── */
+.plan-nav{display:flex;align-items:center;gap:8px;margin-bottom:12px;background:rgba(13,11,24,0.8);border:1px solid var(--border2);padding:8px 12px;}
+.plan-arrow{width:40px;height:40px;border:1px solid var(--border2);background:transparent;color:var(--gold);font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.plan-date-info{flex:1;text-align:center;}
+.plan-date-main{font-family:var(--h-font);font-size:0.72rem;color:var(--gold);letter-spacing:0.06em;}
+.plan-date-sub{font-family:var(--b-font);font-style:italic;font-size:0.68rem;color:var(--text-muted);}
+.plan-today-btn{font-family:var(--h-font);font-size:0.42rem;padding:5px 10px;border:1px solid var(--gold-dim);background:transparent;color:var(--gold-dim);cursor:pointer;}
+.timeline-wrap{position:relative;}
+.tslot{display:flex;align-items:stretch;border-bottom:1px solid rgba(42,34,69,0.22);position:relative;}
+.tslot.hr-start{border-bottom:1px solid rgba(61,52,104,0.45);}
+.tslot:nth-child(even){background:rgba(13,11,24,0.2);}
+.t-label-col{width:46px;flex-shrink:0;font-family:var(--h-font);font-size:0.42rem;color:var(--text-muted);padding:4px 6px 0 0;text-align:right;}
+.t-label-col.hr-lbl{color:var(--gold-dim);font-size:0.46rem;}
+.t-tap{flex:1;cursor:pointer;position:relative;}
+.t-tap:active{background:rgba(201,168,76,0.06);}
+.t-tap-hint{position:absolute;inset:0;display:flex;align-items:center;padding-left:8px;opacity:0;pointer-events:none;}
+.t-tap:hover .t-tap-hint{opacity:1;}
+.t-tap-hint span{font-family:var(--h-font);font-size:0.38rem;color:var(--gold-dim);}
+.pblock{position:absolute;left:50px;right:4px;z-index:3;cursor:pointer;overflow:hidden;}
+.pblock-inner{height:100%;padding:5px 8px;display:flex;flex-direction:column;justify-content:center;}
+.pblock-title{font-family:var(--b-font);font-size:0.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
+.pblock-time{font-family:var(--h-font);font-size:0.4rem;opacity:0.75;margin-top:1px;}
+.pblock-done{position:absolute;top:4px;right:7px;font-size:0.8rem;opacity:0.8;}
+.pt-discipline{background:linear-gradient(135deg,rgba(112,96,176,0.38),rgba(80,60,130,0.25));border-left:3px solid var(--purple-dim);color:var(--purple-light);}
+.pt-quest{background:linear-gradient(135deg,rgba(201,168,76,0.2),rgba(150,120,40,0.14));border-left:3px solid var(--gold-dim);color:var(--gold);}
+.pt-rest{background:linear-gradient(135deg,rgba(74,158,158,0.2),rgba(40,100,100,0.14));border-left:3px solid var(--teal-dim);color:var(--teal);}
+.pt-work{background:linear-gradient(135deg,rgba(160,32,48,0.26),rgba(90,20,35,0.18));border-left:3px solid var(--red-dim);color:var(--red-light);}
+.pb-done{opacity:0.42;}
+
+/* ── MODAL ── */
+.modal-wrap{position:fixed;inset:0;background:rgba(5,4,12,0.88);z-index:200;display:flex;align-items:flex-end;}
+.modal-wrap.hidden{display:none;}
+.modal-sheet{background:linear-gradient(180deg,#13102c,#0d0b1e);border-top:1px solid var(--border2);width:100%;max-height:92vh;overflow-y:auto;padding:16px 16px calc(16px + var(--safe-b));position:relative;}
+.modal-sheet::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.modal-handle{width:36px;height:3px;background:var(--border2);margin:0 auto 12px;border-radius:2px;}
+.modal-title{font-family:var(--h-font);font-size:0.65rem;letter-spacing:0.18em;color:var(--gold);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.modal-inp{width:100%;background:rgba(6,4,14,0.95);border:1px solid var(--border2);border-bottom:2px solid var(--gold-dim);color:var(--text);padding:12px;font-family:var(--b-font);font-size:1rem;outline:none;-webkit-appearance:none;border-radius:0;margin-bottom:12px;}
+.modal-inp::placeholder{color:var(--text-muted);font-style:italic;}
+.modal-inp:focus{border-bottom-color:var(--gold);}
+.mlbl{font-family:var(--h-font);font-size:0.46rem;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:6px;}
+.type-row{display:flex;gap:5px;margin-bottom:12px;}
+.typ-btn{font-family:var(--h-font);font-size:0.44rem;padding:9px 6px;border:1px solid var(--border2);background:transparent;color:var(--text-dim);cursor:pointer;flex:1;letter-spacing:0.05em;transition:all 0.15s;}
+.typ-btn.s-discipline{border-color:var(--purple-dim);color:var(--purple-light);background:rgba(112,96,176,0.14);}
+.typ-btn.s-quest{border-color:var(--gold-dim);color:var(--gold);background:rgba(201,168,76,0.1);}
+.typ-btn.s-rest{border-color:var(--teal-dim);color:var(--teal);background:rgba(74,158,158,0.1);}
+.typ-btn.s-work{border-color:var(--red-dim);color:var(--red-light);background:rgba(160,32,48,0.13);}
+.start-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.t-inp{background:rgba(6,4,14,0.95);border:1px solid var(--border2);border-bottom:2px solid var(--gold-dim);color:var(--text);padding:8px 12px;font-family:var(--h-font);font-size:0.9rem;outline:none;-webkit-appearance:none;border-radius:0;width:120px;}
+.dur-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.dur-btn{font-family:var(--h-font);font-size:0.46rem;padding:10px 6px;border:1px solid var(--border2);background:transparent;color:var(--text-dim);cursor:pointer;flex:1;min-width:38px;text-align:center;transition:all 0.15s;}
+.dur-btn.s{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.1);}
+.done-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 12px;border:1px solid var(--border);background:rgba(11,9,22,0.5);cursor:pointer;}
+.done-row input{accent-color:var(--gold);width:18px;height:18px;cursor:pointer;}
+.done-row-lbl{font-family:var(--h-font);font-size:0.48rem;letter-spacing:0.1em;color:var(--text-muted);}
+.modal-actions{display:flex;gap:7px;}
+.modal-save{flex:1;padding:13px;background:rgba(201,168,76,0.18);color:var(--gold);border:1px solid var(--gold-dim);font-family:var(--h-font);font-size:0.55rem;letter-spacing:0.14em;cursor:pointer;}
+.modal-cancel{padding:13px 14px;background:transparent;color:var(--text-muted);border:1px solid var(--border);font-family:var(--h-font);font-size:0.52rem;cursor:pointer;}
+.modal-delete{padding:13px 12px;background:rgba(160,32,48,0.18);color:var(--red-light);border:1px solid var(--red-dim);font-family:var(--h-font);font-size:0.5rem;cursor:pointer;}
+
+/* ── TIMER DOCK ── */
+.timer-dock{flex-shrink:0;background:linear-gradient(180deg,rgba(8,6,16,0.98),rgba(5,4,12,0.99));border-top:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:12px;transition:box-shadow 0.3s;position:relative;}
+.timer-dock::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
+.timer-dock.running{box-shadow:0 -4px 28px rgba(201,168,76,0.14);}
+.timer-dock.running::before{background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.timer-lbl-sm{font-family:var(--h-font);font-size:0.4rem;letter-spacing:0.22em;color:var(--text-muted);margin-bottom:2px;}
+.timer-clock{font-family:var(--h-font);font-size:1.4rem;font-weight:700;letter-spacing:0.06em;line-height:1;color:var(--text-muted);transition:color 0.4s;}
+.timer-clock.ht{color:var(--gold-dim);}
+.timer-clock.run{color:var(--gold);text-shadow:0 0 18px rgba(201,168,76,0.5);}
+.timer-info{flex:1;min-width:0;}
+.timer-trk-lbl{font-family:var(--h-font);font-size:0.4rem;letter-spacing:0.15em;color:var(--text-muted);}
+.timer-trk-name{font-family:var(--b-font);font-size:0.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic;}
+.timer-hint{font-family:var(--b-font);font-style:italic;font-size:0.75rem;color:var(--text-muted);}
+.timer-btns{display:flex;gap:5px;flex-shrink:0;}
+.t-btn{height:36px;padding:0 12px;border:none;font-family:var(--h-font);font-size:0.48rem;font-weight:600;cursor:pointer;letter-spacing:0.08em;}
+.t-resume{background:rgba(201,168,76,0.2);color:var(--gold);border:1px solid var(--gold-dim)!important;}
+.t-pause{background:rgba(42,34,69,0.6);color:var(--text-dim);border:1px solid var(--border2)!important;}
+.t-stop{background:rgba(160,32,48,0.22);color:var(--red-light);border:1px solid var(--red-dim)!important;}
+.t-btn{border:1px solid transparent;}
+
+.ornament{text-align:center;color:var(--gold-dim);font-size:0.8rem;letter-spacing:0.5em;margin:4px 0 12px;opacity:0.35;}
+.empty-hint{font-family:var(--b-font);font-style:italic;color:var(--text-muted);font-size:0.9rem;padding:10px 12px;border:1px dashed var(--border2);margin-bottom:10px;}
+.edit-inp{flex:1;background:rgba(6,4,14,0.95);border:1px solid var(--gold);color:var(--text);padding:8px 10px;font-family:var(--b-font);font-size:0.95rem;outline:none;-webkit-appearance:none;border-radius:0;}
+.save-btn-sm{height:36px;padding:0 12px;background:rgba(201,168,76,0.18);color:var(--gold);border:1px solid var(--gold-dim);font-family:var(--h-font);font-size:0.46rem;cursor:pointer;flex-shrink:0;}
+.ln-toggle{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:rgba(74,158,158,0.07);border-bottom:1px solid rgba(74,158,158,0.25);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.ln-toggle:active{background:rgba(74,158,158,0.13);}
+.ln-toggle-left{display:flex;align-items:center;gap:10px;}
+.ln-moon{font-size:1.1rem;flex-shrink:0;}
+.ln-toggle-title{font-family:var(--h-font);font-size:0.5rem;letter-spacing:0.18em;color:var(--teal);}
+.ln-toggle-sub{font-family:var(--b-font);font-style:italic;font-size:0.72rem;color:var(--text-muted);margin-top:1px;}
+.ln-chevron{font-family:var(--h-font);font-size:0.6rem;color:var(--teal-dim);}
+.btn-edit{color:var(--teal);border-color:var(--teal-dim);font-size:0.85rem;}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-row1">
+      <div class="hdr-left">
+        <div class="hdr-eyebrow">ORDER OF INNER DISCIPLINE</div>
+        <div class="hdr-title">THE MONK'S CODEX</div>
+        <div class="hdr-subtitle" id="hdrSub">Path of the Awakened</div>
+      </div>
+      <div class="hdr-right">
+        <div class="hdr-date" id="hdrDate"></div>
+        <div class="hdr-stats">
+          <div class="prog-row" id="progRow" style="display:none">
+            <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+            <span class="prog-lbl" id="progLbl"></span>
+          </div>
+          <div class="hdr-focus" id="hdrFocus">0:00 meditated</div>
+        </div>
+      </div>
+    </div>
+    <div class="ess-bar">
+      <span class="ess-icon">⚗️</span>
+      <span class="ess-lbl">ESSENCE TODAY</span>
+      <div class="ess-ctrl">
+        <button class="ess-btn" onclick="adjEss(-5)">−</button>
+        <input class="ess-inp" id="essInp" type="number" min="0" step="5" value="0" onchange="setEss(this.value)" onblur="setEss(this.value)">
+        <span class="ess-mg">MG</span>
+        <button class="ess-btn" onclick="adjEss(5)">+</button>
+      </div>
+    </div>
+    <div class="quote-bar" id="quoteBar">
+      <div class="quote-text" id="quoteText"></div>
+      <div class="quote-author" id="quoteAuthor"></div>
+    </div>
+  </div>
+
+  <!-- TIMER DOCK (above nav) -->
+  <div class="timer-dock" id="timerDock">
+    <div><div class="timer-lbl-sm">FOCUS TIMER</div><div class="timer-clock" id="timerClock">00:00</div></div>
+    <div class="timer-info" id="timerInfo"><div class="timer-hint">Select a rite or quest...</div></div>
+    <div class="timer-btns" id="timerBtns"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="content"></div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bot-nav">
+    <button class="nav-btn active" data-tab="rites" onclick="goTab('rites')">
+      <span class="nav-ico">⚔️</span><span class="nav-lbl">RITES</span>
+    </button>
+    <button class="nav-btn" data-tab="quests" onclick="goTab('quests')">
+      <span class="nav-ico">📜</span><span class="nav-lbl">QUESTS</span>
+    </button>
+    <button class="nav-btn" data-tab="plan" onclick="goTab('plan')">
+      <span class="nav-ico">🗓️</span><span class="nav-lbl">DAY PLAN</span>
+    </button>
+    <button class="nav-btn" data-tab="oaths" onclick="goTab('oaths')">
+      <span class="nav-ico">🔮</span><span class="nav-lbl">OATHS</span>
+    </button>
+    <button class="nav-btn" data-tab="codex" onclick="goTab('codex')">
+      <span class="nav-ico">📖</span><span class="nav-lbl">CODEX</span>
+    </button>
+  </div>
+</div>
+
+<!-- BLOCK MODAL -->
+<div class="modal-wrap hidden" id="blockModal" onclick="mOverlay(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">⚔ ADD TIME BLOCK</div>
+    <div class="mlbl">WHAT ARE YOU DOING?</div>
+    <input class="modal-inp" id="bLabel" placeholder="Name this block..." type="text">
+    <div class="mlbl">TYPE</div>
+    <div class="type-row">
+      <button class="typ-btn s-discipline" data-t="discipline" onclick="selTyp('discipline')">⚔ DISCIPLINE</button>
+      <button class="typ-btn" data-t="quest" onclick="selTyp('quest')">📜 QUEST</button>
+      <button class="typ-btn" data-t="work" onclick="selTyp('work')">⚒ WORK</button>
+      <button class="typ-btn" data-t="rest" onclick="selTyp('rest')">🌙 REST</button>
+    </div>
+    <div class="start-row">
+      <div class="mlbl" style="margin:0;width:46px">START</div>
+      <input class="t-inp" id="bStart" type="time" value="08:00">
+    </div>
+    <div class="mlbl" style="margin-top:10px">DURATION</div>
+    <div class="dur-row">
+      <button class="dur-btn" data-d="30" onclick="selDur(30)">30m</button>
+      <button class="dur-btn s" data-d="60" onclick="selDur(60)">1h</button>
+      <button class="dur-btn" data-d="90" onclick="selDur(90)">1.5h</button>
+      <button class="dur-btn" data-d="120" onclick="selDur(120)">2h</button>
+      <button class="dur-btn" data-d="180" onclick="selDur(180)">3h</button>
+      <button class="dur-btn" data-d="240" onclick="selDur(240)">4h</button>
+    </div>
+    <div class="done-row" onclick="document.getElementById('bDone').click()">
+      <input type="checkbox" id="bDone" onclick="event.stopPropagation()">
+      <span class="done-row-lbl">MARK AS COMPLETED</span>
+    </div>
+    <div class="modal-actions" id="modalActs">
+      <button class="modal-cancel" onclick="closeModal()">CANCEL</button>
+      <button class="modal-save" onclick="saveBlock()">✦ SEAL THE BLOCK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────
+// BUILT-IN QUOTES
+// ─────────────────────────────────────
+var BUILT_IN_QUOTES=[
+  {q:"The successful warrior is the average man, with laser-like focus.",a:"Bruce Lee"},
+  {q:"Discipline is the bridge between goals and accomplishment.",a:"Jim Rohn"},
+  {q:"Empty your mind, be formless, shapeless — like water.",a:"Bruce Lee"},
+  {q:"The mind is everything. What you think, you become.",a:"Buddha"},
+  {q:"Do not pray for an easy life, pray for the strength to endure a difficult one.",a:"Bruce Lee"},
+  {q:"We are what we repeatedly do. Excellence, then, is not an act, but a habit.",a:"Aristotle"},
+  {q:"The secret of your future is hidden in your daily routine.",a:"Mike Murdock"},
+  {q:"You don't rise to the level of your goals, you fall to the level of your systems.",a:"James Clear"},
+  {q:"Hard choices, easy life. Easy choices, hard life.",a:"Jerzy Gregorek"},
+  {q:"The pain of discipline is far less than the pain of regret.",a:"Unknown"},
+  {q:"Every action you take is a vote for the type of person you wish to become.",a:"James Clear"},
+  {q:"To know others is intelligence; to know yourself is true wisdom.",a:"Lao Tzu"},
+  {q:"Conquer yourself rather than the world.",a:"René Descartes"},
+  {q:"It does not matter how slowly you go as long as you do not stop.",a:"Confucius"},
+  {q:"The man who moves a mountain begins by carrying away small stones.",a:"Confucius"},
+  {q:"The only way out is through.",a:"Robert Frost"},
+  {q:"An investment in yourself pays the best interest.",a:"Benjamin Franklin"},
+  {q:"Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing myself.",a:"Rumi"},
+  {q:"The wound is the place where the Light enters you.",a:"Rumi"},
+  {q:"The journey of a thousand miles begins with a single step.",a:"Lao Tzu"},
+  {q:"If you are going through hell, keep going.",a:"Winston Churchill"},
+  {q:"Fall in love with the process and the results will come.",a:"Unknown"},
+  {q:"One day or day one. You decide.",a:"Unknown"},
+  {q:"Small disciplines repeated with consistency every day lead to great achievements.",a:"John Maxwell"},
+  {q:"Knowing is not enough; we must apply. Willing is not enough; we must do.",a:"Bruce Lee"},
+  {q:"You miss 100% of the shots you don't take.",a:"Wayne Gretzky"},
+  {q:"Out beyond ideas of wrongdoing and rightdoing, there is a field. I'll meet you there.",a:"Rumi"},
+  {q:"Dream it. Believe it. Build it.",a:"Unknown"},
+  {q:"The key to immortality is first living a life worth remembering.",a:"Bruce Lee"},
+  {q:"Knowing others is wisdom, knowing yourself is Enlightenment.",a:"Tao Te Ching"}
+];
+
+// ─────────────────────────────────────
+// STATE
+// ─────────────────────────────────────
+var S={
+  disciplines:[],
+  taskBacklog:[],       // all tasks ever added
+  dailyQuests:{},       // {dateKey: [id,id,id]} — up to 3 picked per day
+  oaths:[],
+  checked:{},           // {dateKey:id : bool}
+  timeLog:{},           // {dateKey:id : seconds}
+  essence:{},           // {dateKey: mg}
+  dayPlan:{},           // {dateKey: [blocks]}
+  character:{name:'The Wanderer',cls:'Way of the Open Hand Monk',bio:''},
+  customQuotes:[],      // [{q,a}]
+  tab:'rites',
+  planDate:null,
+  showOathForm:false
+};
+
+var lateNightOpen=false; // not persisted — collapses on reload by design
+
+var timer={
+  target:null,running:false,
+  startedAt:null,       // Date.now() when started/resumed
+  accSecs:0,            // accumulated seconds before current run
+  displaySecs:0,        // what the UI shows
+  interval:null,
+  pulse:false,pulseInterval:null
+};
+
+var M={editing:null,dur:60,type:'discipline',dateStr:null};
+
+// ─────────────────────────────────────
+// STORAGE
+// ─────────────────────────────────────
+function p(k,d){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function load(){
+  S.disciplines=p('mc-d',[]);
+  S.taskBacklog=p('mc-tb',[]);
+  S.dailyQuests=p('mc-dq',{});
+  S.oaths=p('mc-o',[]);
+  S.checked=p('mc-c',{});
+  S.timeLog=p('mc-t',{});
+  S.essence=p('mc-e',{});
+  S.dayPlan=p('mc-dp',{});
+  S.character=p('mc-ch',{name:'The Wanderer',cls:'Way of the Open Hand Monk',bio:''});
+  S.customQuotes=p('mc-cq',[]);
+  S.planDate=todayKey();
+}
+
+// ─────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────
+function todayKey(){return new Date().toISOString().split('T')[0];}
+function doy(){var n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/86400000);}
+function pad(n){return String(n).padStart(2,'0');}
+function fmt(s){var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;if(h>0)return h+':'+pad(m)+':'+pad(ss);return pad(m)+':'+pad(ss);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function isChecked(id){return!!S.checked[todayKey()+':'+id];}
+function getLogTime(id){return S.timeLog[todayKey()+':'+id]||0;}
+function todayTotal(){return Object.entries(S.timeLog).filter(function(e){return e[0].startsWith(todayKey());}).reduce(function(s,e){return s+e[1];},0);}
+function todayEss(){return S.essence[todayKey()]||0;}
+function daysUntil(ds){if(!ds)return null;var d=new Date(ds+'T00:00:00'),t=new Date();t.setHours(0,0,0,0);return Math.ceil((d-t)/86400000);}
+function addDays(ds,n){var d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
+function minsToTime(m){return pad(Math.floor(m/60))+':'+pad(m%60);}
+function timeToMins(t){var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1]);}
+function fmtPlanDate(ds){
+  var d=new Date(ds+'T00:00:00'),td=todayKey(),tom=addDays(td,1),yes=addDays(td,-1);
+  var sub=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  if(ds===td)return{main:'TODAY',sub:sub};
+  if(ds===tom)return{main:'TOMORROW',sub:sub};
+  if(ds===yes)return{main:'YESTERDAY',sub:sub};
+  return{main:d.toLocaleDateString('en-US',{weekday:'long'}).toUpperCase(),sub:d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})};
+}
+function allQuotes(){return BUILT_IN_QUOTES.concat(S.customQuotes);}
+function todayDailyQuests(){return S.dailyQuests[todayKey()]||[];}
+
+// ─────────────────────────────────────
+// INIT / HEADER
+// ─────────────────────────────────────
+function initHeader(){
+  document.getElementById('hdrDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  if(S.character&&S.character.cls)document.getElementById('hdrSub').textContent=S.character.cls;
+  document.getElementById('essInp').value=todayEss();
+  pickDailyQuote();
+  updateStats();
+}
+function pickDailyQuote(){
+  var all=allQuotes();
+  var q=all[doy()%all.length];
+  document.getElementById('quoteText').textContent='"'+q.q+'"';
+  document.getElementById('quoteAuthor').textContent='— '+q.a;
+}
+function updateStats(){
+  var disc=S.disciplines,done=disc.filter(function(d){return isChecked(d.id);}).length,total=disc.length;
+  var row=document.getElementById('progRow'),fill=document.getElementById('progFill'),lbl=document.getElementById('progLbl');
+  if(total>0){row.style.display='flex';fill.style.width=(done/total*100)+'%';fill.className='prog-fill'+(done===total?' done':'');lbl.textContent=done+'/'+total;lbl.className='prog-lbl'+(done===total?' done':'');}
+  else row.style.display='none';
+  document.getElementById('hdrFocus').textContent=fmt(todayTotal())+' meditated';
+}
+
+// ─────────────────────────────────────
+// ESSENCE
+// ─────────────────────────────────────
+function adjEss(d){var v=Math.max(0,(S.essence[todayKey()]||0)+d);S.essence[todayKey()]=v;sv('mc-e',S.essence);document.getElementById('essInp').value=v;}
+function setEss(val){var v=Math.max(0,parseInt(val)||0);S.essence[todayKey()]=v;sv('mc-e',S.essence);}
+
+// ─────────────────────────────────────
+// TABS
+// ─────────────────────────────────────
+function goTab(tab){
+  S.tab=tab;S.showOathForm=false;
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.toggle('active',b.dataset.tab===tab);});
+  renderContent();
+}
+function renderContent(){
+  var el=document.getElementById('content');
+  if(S.tab==='rites')el.innerHTML=renderRites();
+  else if(S.tab==='quests')el.innerHTML=renderQuests();
+  else if(S.tab==='plan')el.innerHTML=renderPlan();
+  else if(S.tab==='oaths')el.innerHTML=renderOaths();
+  else if(S.tab==='codex')el.innerHTML=renderCodex();
+}
+
+// ─────────────────────────────────────
+// RITES (Daily Disciplines)
+// ─────────────────────────────────────
+function renderRites(){
+  var html='<div class="page">';
+  html+='<div class="sec-title"><div class="sec-title-left">⚔ DAILY DISCIPLINES</div><span class="reset-badge">↺ RESETS DAILY</span></div>';
+  if(S.disciplines.length===0)html+='<div class="empty-hint">No disciplines forged yet. These are the habits you commit to every single day.</div>';
+  S.disciplines.forEach(function(d){
+    var done=isChecked(d.id),logged=getLogTime(d.id),active=timer.target&&timer.target.id===d.id;
+    var lbl=esc(d.label).replace(/'/g,"&#39;");
+    html+='<div class="card'+(done?' done-card':'')+(active?' active-card':'')+'" id="item-'+d.id+'">';
+    html+='<input class="card-check" type="checkbox"'+(done?' checked':'')+' onchange="toggleCheck(\''+d.id+'\')">';
+    html+='<span class="card-label">'+esc(d.label)+'</span>';
+    if(logged>0)html+='<span class="card-meta lit">'+fmt(logged)+'</span>';
+    html+='<button class="card-btn btn-edit" onclick="editDisc(\''+d.id+'\')">✎</button>';
+    html+='<button class="card-btn btn-time'+(active?' rec':'')+'" onclick="clickTimer(\''+d.id+'\',\''+lbl+'\')">'+(active?'● FOCUS':'▶ TIME')+'</button>';
+    html+='<button class="card-btn btn-del" onclick="delDisc(\''+d.id+'\')">✕</button>';
+    html+='</div>';
+  });
+  html+='<div class="add-row"><input class="add-inp" id="newDisc" type="text" placeholder="Add a daily discipline (meditation, music, training...)" onkeydown="if(event.key===\'Enter\')addDisc()"><button class="add-btn" onclick="addDisc()">+ FORGE</button></div>';
+  html+='</div>';
+  return html;
+}
+function addDisc(){var i=document.getElementById('newDisc'),v=i&&i.value.trim();if(!v)return;S.disciplines.push({id:Date.now().toString(),label:v});sv('mc-d',S.disciplines);i.value='';renderContent();updateStats();}
+function delDisc(id){S.disciplines=S.disciplines.filter(function(d){return d.id!==id;});sv('mc-d',S.disciplines);if(timer.target&&timer.target.id===id)stopTimer();renderContent();updateStats();}
+function toggleCheck(id){var key=todayKey()+':'+id;S.checked[key]=!S.checked[key];sv('mc-c',S.checked);renderContent();updateStats();}
+function editDisc(id){
+  var d=S.disciplines.find(function(x){return x.id===id;});if(!d)return;
+  var el=document.getElementById('item-'+id);if(!el)return;
+  var active=timer.target&&timer.target.id===id;
+  var done=isChecked(id);var logged=getLogTime(id);
+  // Replace just the label span with an input — keep checkbox and buttons intact
+  el.innerHTML='<input class="card-check" type="checkbox"'+(done?' checked':'')+' onchange="toggleCheck(\''+id+'\')">'
+    +'<input class="edit-inp" id="ed-'+id+'" value="'+esc(d.label)+'" onkeydown="if(event.key===\'Enter\')saveDiscEdit(\''+id+'\');if(event.key===\'Escape\')renderContent()">'
+    +(logged>0?'<span class="card-meta lit">'+fmt(logged)+'</span>':'')
+    +'<button class="save-btn-sm" onclick="saveDiscEdit(\''+id+'\')">SAVE</button>'
+    +'<button class="card-btn btn-del" onclick="renderContent()">ESC</button>';
+  var inp=document.getElementById('ed-'+id);
+  if(inp){inp.focus();inp.select();}
+}
+function saveDiscEdit(id){
+  var inp=document.getElementById('ed-'+id);
+  var v=inp&&inp.value.trim();if(!v)return;
+  var d=S.disciplines.find(function(x){return x.id===id;});
+  if(d){
+    d.label=v;
+    sv('mc-d',S.disciplines);
+    // If this discipline is the active timer target, update its label live
+    if(timer.target&&timer.target.id===id){
+      timer.target.label=v;
+      updateTimerUI();
+    }
+  }
+  renderContent();
+}
+
+// ─────────────────────────────────────
+// QUESTS (Backlog + Pick 3)
+// ─────────────────────────────────────
+function renderQuests(){
+  var todayIds=todayDailyQuests();
+  var todayTasks=todayIds.map(function(id){return S.taskBacklog.find(function(t){return t.id===id;});}).filter(Boolean);
+  var html='<div class="page">';
+
+  // TODAY'S 3 QUESTS
+  html+='<div class="today-quests-box">';
+  html+='<div class="tq-header"><span class="tq-title">⚡ TODAY\'S QUESTS</span><span class="tq-count">'+todayTasks.length+' / 3 CHOSEN</span></div>';
+  if(todayTasks.length===0){
+    html+='<div class="tq-empty">No quests chosen for today. Pick up to 3 from your backlog below.</div>';
+  } else {
+    todayTasks.forEach(function(t){
+      var done=isChecked(t.id),logged=getLogTime(t.id),active=timer.target&&timer.target.id===t.id;
+      var lbl=esc(t.label).replace(/'/g,"&#39;");
+      html+='<div class="card'+(done?' done-card':'')+(active?' active-card':'')+'">';
+      html+='<input class="card-check" type="checkbox"'+(done?' checked':'')+' onchange="toggleCheck(\''+t.id+'\')">';
+      html+='<span class="card-label">'+esc(t.label)+'</span>';
+      if(logged>0)html+='<span class="card-meta lit">'+fmt(logged)+'</span>';
+      html+='<button class="card-btn btn-plan" onclick="addQuestToPlan(\''+t.id+'\',\''+lbl+'\')" title="Add to Day Plan">📅</button>';
+      html+='<button class="card-btn btn-time'+(active?' rec':'')+'" onclick="clickTimer(\''+t.id+'\',\''+lbl+'\')">'+(active?'●':'▶')+'</button>';
+      html+='<button class="card-btn btn-del" onclick="unpickQuest(\''+t.id+'\')">✕</button>';
+      html+='</div>';
+    });
+  }
+  html+='</div>';
+
+  // BACKLOG
+  var backlogRest=S.taskBacklog.filter(function(t){return todayIds.indexOf(t.id)===-1;});
+  html+='<div class="backlog-label">📜 QUEST BACKLOG <span style="color:var(--text-muted);font-size:0.42rem;margin-left:4px">('+backlogRest.length+' remaining)</span></div>';
+  if(S.taskBacklog.length===0)html+='<div class="empty-hint">Your backlog is empty. Add quests below — they persist until completed or abandoned.</div>';
+  backlogRest.forEach(function(t){
+    var canPick=todayIds.length<3;
+    html+='<div class="card" id="bl-'+t.id+'">';
+    html+='<span class="card-label">'+esc(t.label)+'</span>';
+    html+='<button class="card-btn btn-pick" onclick="pickQuest(\''+t.id+'\')" '+(canPick?'':'disabled style="opacity:0.35"')+'>'+(canPick?'+ TODAY':'FULL')+'</button>';
+    html+='<button class="card-btn btn-del" onclick="delFromBacklog(\''+t.id+'\')">✕</button>';
+    html+='</div>';
+  });
+  html+='<div class="add-row"><input class="add-inp" id="newTask" type="text" placeholder="Add a quest to your backlog..." onkeydown="if(event.key===\'Enter\')addTask()"><button class="add-btn" onclick="addTask()">+ ADD</button></div>';
+  html+='</div>';
+  return html;
+}
+function addTask(){var i=document.getElementById('newTask'),v=i&&i.value.trim();if(!v)return;S.taskBacklog.push({id:Date.now().toString(),label:v});sv('mc-tb',S.taskBacklog);i.value='';renderContent();}
+function delFromBacklog(id){S.taskBacklog=S.taskBacklog.filter(function(t){return t.id!==id;});sv('mc-tb',S.taskBacklog);var dq=todayDailyQuests().filter(function(x){return x!==id;});S.dailyQuests[todayKey()]=dq;sv('mc-dq',S.dailyQuests);renderContent();}
+function pickQuest(id){
+  var dq=todayDailyQuests();
+  if(dq.length>=3||dq.indexOf(id)!==-1)return;
+  dq.push(id);S.dailyQuests[todayKey()]=dq;sv('mc-dq',S.dailyQuests);renderContent();updateStats();
+}
+function unpickQuest(id){
+  var dq=todayDailyQuests().filter(function(x){return x!==id;});
+  S.dailyQuests[todayKey()]=dq;sv('mc-dq',S.dailyQuests);renderContent();updateStats();
+}
+function addQuestToPlan(id,label){
+  // Switch to plan tab and open modal pre-filled with quest label
+  S.tab='plan';
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.toggle('active',b.dataset.tab==='plan');});
+  renderContent();
+  // Find current time rounded to nearest 30
+  var now=new Date(),mins=now.getHours()*60+now.getMinutes();
+  var rounded=Math.round(mins/30)*30;
+  if(rounded<300)rounded=480; // default 8am if too early
+  openModal(rounded,S.planDate||todayKey(),null,label,'quest');
+}
+
+// ─────────────────────────────────────
+// PLANNER
+// ─────────────────────────────────────
+function buildTimeline(pDate,blocks,startMin,endMin,offsetTop){
+  // offsetTop: pixel offset for block positioning within this section
+  var SLOT_H=46,STEP=30;
+  var occupied={};
+  blocks.forEach(function(b){for(var m=b.startMins;m<b.startMins+b.durMins;m+=STEP)occupied[m]=true;});
+  var slots='';
+  for(var mins=startMin;mins<=endMin;mins+=STEP){
+    var h=Math.floor(mins/60),m=mins%60,isHour=m===0;
+    var h12=h>12?h-12:(h===0?12:h),ap=h>=12?'p':'a';
+    var tlbl=isHour?(h12+''+ap):(m===30?'·30':'');
+    var hasB=!!occupied[mins];
+    slots+='<div class="tslot'+(isHour?' hr-start':'')+'" style="height:'+SLOT_H+'px">'
+      +'<div class="t-label-col'+(isHour?' hr-lbl':'')+'">'+tlbl+'</div>'
+      +'<div class="t-tap" onclick="slotClick('+mins+',\''+pDate+'\')">'
+      +(!hasB?'<div class="t-tap-hint"><span>+ ADD</span></div>':'')
+      +'</div></div>';
+  }
+  var bHTML='';
+  blocks.filter(function(b){return b.startMins>=startMin&&b.startMins<endMin+STEP;}).forEach(function(b){
+    var top=((b.startMins-startMin)/STEP)*SLOT_H+offsetTop;
+    var ht=(b.durMins/STEP)*SLOT_H-2;
+    var dur=b.durMins>=60?(Math.floor(b.durMins/60)+'h'+(b.durMins%60?b.durMins%60+'m':'')):(b.durMins+'m');
+    bHTML+='<div class="pblock pt-'+b.type+(b.done?' pb-done':'')+'" style="top:'+top+'px;height:'+ht+'px;" onclick="editBlock(\''+b.id+'\',\''+pDate+'\')">'
+      +'<div class="pblock-inner"><div class="pblock-title">'+esc(b.label)+'</div>'
+      +'<div class="pblock-time">'+minsToTime(b.startMins)+' – '+minsToTime(b.startMins+b.durMins)+' · '+dur+'</div></div>'
+      +(b.done?'<div class="pblock-done">✓</div>':'')+'</div>';
+  });
+  return {slots:slots,blocks:bHTML};
+}
+
+function renderPlan(){
+  var pDate=S.planDate||todayKey();
+  var pd=fmtPlanDate(pDate);
+  var allBlocks=(S.dayPlan[pDate]||[]).slice().sort(function(a,b){return a.startMins-b.startMins;});
+  var isToday=pDate===todayKey();
+  var SLOT_H=46,STEP=30;
+
+  // Late night: midnight(0) to 4:30am(270), 10 slots
+  var LN_START=0,LN_END=270;
+  var lnBlocks=allBlocks.filter(function(b){return b.startMins<=LN_END;});
+  var lnHasBlocks=lnBlocks.length>0;
+  var lnSlotCount=(LN_END-LN_START)/STEP+1; // 10
+  var lnH=lnSlotCount*SLOT_H;
+
+  // Main day: 5am(300) to 11:30pm(1410)
+  var DAY_START=300,DAY_END=1410;
+
+  // Build late night section
+  var lnSection='';
+  if(lateNightOpen||lnHasBlocks){
+    var lnData=buildTimeline(pDate,allBlocks,LN_START,LN_END,0);
+    lnSection='<div id="lnExpanded" style="position:relative;border-bottom:2px solid rgba(74,158,158,0.3);">'
+      +lnData.slots+lnData.blocks+'</div>';
+  }
+
+  // Build main timeline
+  var dayData=buildTimeline(pDate,allBlocks,DAY_START,DAY_END,0);
+  var daySlotCount=(DAY_END-DAY_START)/STEP+1;
+
+  // Late night toggle bar
+  var lnToggle='<div class="ln-toggle" onclick="toggleLateNight()">'
+    +'<div class="ln-toggle-left">'
+    +'<span class="ln-moon">🌙</span>'
+    +'<div><div class="ln-toggle-title">MIDNIGHT — 5:00 AM</div>'
+    +'<div class="ln-toggle-sub">'+(lnHasBlocks?lnBlocks.length+' block'+(lnBlocks.length>1?'s':'')+' planned':(lateNightOpen?'Tap to collapse':'Rest · tap to plan late hours'))+'</div></div>'
+    +'</div>'
+    +'<span class="ln-chevron">'+(lateNightOpen||lnHasBlocks?'▲':'▼')+'</span>'
+    +'</div>';
+
+  var todayBtn=!isToday?'<button class="plan-today-btn" onclick="goToday()">TODAY</button>':'';
+
+  return '<div class="page"><div class="plan-nav">'
+    +'<button class="plan-arrow" onclick="shiftDate(-1)">‹</button>'
+    +'<div class="plan-date-info"><div class="plan-date-main">'+pd.main+'</div><div class="plan-date-sub">'+pd.sub+'</div></div>'
+    +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">'+todayBtn+'<button class="plan-arrow" onclick="shiftDate(1)">›</button></div>'
+    +'</div>'
+    +lnToggle
+    +(lateNightOpen||lnHasBlocks?lnSection:'')
+    +'<div class="timeline-wrap" style="position:relative">'+dayData.slots+dayData.blocks+'</div>'
+    +'</div>';
+}
+function toggleLateNight(){lateNightOpen=!lateNightOpen;renderContent();}
+function shiftDate(n){S.planDate=addDays(S.planDate||todayKey(),n);renderContent();}
+function goToday(){S.planDate=todayKey();renderContent();}
+function slotClick(mins,dateStr){
+  var blocks=S.dayPlan[dateStr]||[];
+  var hit=blocks.find(function(b){return mins>=b.startMins&&mins<b.startMins+b.durMins;});
+  if(hit)editBlock(hit.id,dateStr);else openModal(mins,dateStr,null,null,null);
+}
+function editBlock(id,dateStr){
+  var b=(S.dayPlan[dateStr]||[]).find(function(x){return x.id===id;});
+  if(b)openModal(b.startMins,dateStr,b,null,null);
+}
+function openModal(startMins,dateStr,existing,prefillLabel,prefillType){
+  M.editing=existing||null;M.dateStr=dateStr;M.dur=existing?existing.durMins:60;M.type=existing?existing.type:(prefillType||'discipline');
+  document.getElementById('bLabel').value=existing?existing.label:(prefillLabel||'');
+  document.getElementById('bStart').value=minsToTime(startMins);
+  document.getElementById('bDone').checked=existing?!!existing.done:false;
+  document.getElementById('modalTitle').textContent=existing?'⚔ EDIT TIME BLOCK':'⚔ ADD TIME BLOCK';
+  selTyp(M.type,true);selDur(M.dur,true);
+  var acts=document.getElementById('modalActs');
+  if(existing){
+    acts.innerHTML='<button class="modal-delete" onclick="deleteBlock(\''+existing.id+'\',\''+dateStr+'\')">✕ REMOVE</button>'
+      +'<button class="modal-cancel" onclick="closeModal()">CANCEL</button>'
+      +'<button class="modal-save" onclick="saveBlock()">✦ UPDATE</button>';
+  } else {
+    acts.innerHTML='<button class="modal-cancel" onclick="closeModal()">CANCEL</button>'
+      +'<button class="modal-save" onclick="saveBlock()">✦ SEAL THE BLOCK</button>';
+  }
+  document.getElementById('blockModal').classList.remove('hidden');
+  setTimeout(function(){var el=document.getElementById('bLabel');if(el)el.focus();},150);
+}
+function mOverlay(e){if(e.target===document.getElementById('blockModal'))closeModal();}
+function closeModal(){document.getElementById('blockModal').classList.add('hidden');M.editing=null;}
+function selTyp(t,silent){M.type=t;document.querySelectorAll('.typ-btn').forEach(function(b){b.className='typ-btn'+(b.dataset.t===t?' s-'+t:'');});}
+function selDur(d,silent){M.dur=Number(d);document.querySelectorAll('.dur-btn').forEach(function(b){b.classList.toggle('s',Number(b.dataset.d)===M.dur);});}
+function saveBlock(){
+  var label=document.getElementById('bLabel').value.trim();if(!label)return;
+  var startMins=timeToMins(document.getElementById('bStart').value||'08:00');
+  var done=document.getElementById('bDone').checked;
+  var dateStr=M.dateStr||S.planDate||todayKey();
+  if(!S.dayPlan[dateStr])S.dayPlan[dateStr]=[];
+  if(M.editing){
+    var idx=S.dayPlan[dateStr].findIndex(function(b){return b.id===M.editing.id;});
+    if(idx>=0)S.dayPlan[dateStr][idx]=Object.assign({},S.dayPlan[dateStr][idx],{label:label,startMins:startMins,durMins:M.dur,type:M.type,done:done});
+  } else {
+    S.dayPlan[dateStr].push({id:Date.now().toString(),label:label,startMins:startMins,durMins:M.dur,type:M.type,done:false});
+  }
+  sv('mc-dp',S.dayPlan);closeModal();if(S.tab==='plan')renderContent();
+}
+function deleteBlock(id,dateStr){
+  if(S.dayPlan[dateStr])S.dayPlan[dateStr]=S.dayPlan[dateStr].filter(function(b){return b.id!==id;});
+  sv('mc-dp',S.dayPlan);closeModal();renderContent();
+}
+
+// ─────────────────────────────────────
+// OATHS
+// ─────────────────────────────────────
+function renderOaths(){
+  var active=S.oaths.filter(function(o){return!o.done;}),done=S.oaths.filter(function(o){return o.done;});
+  var html='<div class="page">';
+  if(S.showOathForm){
+    html+='<div class="oath-form"><div class="oath-form-title">✦ SWEAR A NEW OATH ✦</div>'
+      +'<div class="form-row"><div class="form-lbl">THE OATH</div><input class="form-inp" id="oLbl" placeholder="What do you vow to achieve?"></div>'
+      +'<div class="form-row"><div class="form-lbl">DESCRIBE YOUR VISION (optional)</div><textarea class="form-ta" id="oDesc" placeholder="What does this mean to you? Who do you become?"></textarea></div>'
+      +'<div class="form-2col"><div class="form-row"><div class="form-lbl">DUE DATE</div><input class="form-inp" id="oDue" type="date"></div>'
+      +'<div class="form-row"><div class="form-lbl">CATEGORY</div><input class="form-inp" id="oCat" placeholder="e.g. Music, Health"></div></div>'
+      +'<div class="form-actions"><button class="btn-oath-cancel" onclick="cancelOath()">CANCEL</button><button class="btn-oath-save" onclick="addOath()">✦ SWEAR THIS OATH</button></div></div>';
+  }
+  html+='<div class="sec-title"><div class="sec-title-left">🔮 SWORN OATHS — '+active.length+' ACTIVE</div></div>';
+  if(active.length===0&&!S.showOathForm)html+='<div class="empty-hint">No oaths sworn yet. What future are you forging?</div>';
+  active.forEach(function(o){html+=renderOathCard(o);});
+  if(!S.showOathForm)html+='<button class="add-oath-btn" onclick="openOath()">✦ SWEAR A NEW OATH ✦</button>';
+  if(done.length>0){
+    html+='<div class="sec-title" style="margin-top:22px"><div class="sec-title-left">✦ OATHS FULFILLED — '+done.length+'</div></div>';
+    done.forEach(function(o){html+=renderOathCard(o);});
+  }
+  return html+'</div>';
+}
+function renderOathCard(o){
+  var days=daysUntil(o.dueDate),dc='',dt='';
+  if(o.dueDate){if(days<0){dc='ov';dt='OVERDUE BY '+Math.abs(days)+' DAYS';}else if(days===0){dc='soon';dt='DUE TODAY';}else if(days<=14){dc='soon';dt='DUE IN '+days+' DAYS';}else{dt=new Date(o.dueDate+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}}
+  var cls='oath-card'+(o.done?' done-oc':'')+((!o.done&&days!==null&&days<0)?' overdue-card':'');
+  return '<div class="'+cls+'" id="oath-'+o.id+'">'
+    +'<div class="oc-top"><input class="oc-check" type="checkbox"'+(o.done?' checked':'')+' onchange="toggleOath(\''+o.id+'\')">'
+    +'<span class="oc-label">'+esc(o.label)+'</span>'
+    +(!o.done?'<button class="card-btn btn-del" style="font-size:0.5rem;height:32px;padding:0 10px" onclick="editOath(\''+o.id+'\')">EDIT</button>':'')
+    +'<button class="card-btn btn-del" onclick="delOath(\''+o.id+'\')">✕</button></div>'
+    +(o.desc?'<div class="oc-desc">'+esc(o.desc)+'</div>':'')
+    +'<div class="oc-meta">'
+    +(o.dueDate?'<span class="oc-tag '+dc+'">'+dt+'</span>':'')
+    +(o.category?'<span class="oc-tag cat">'+esc(o.category)+'</span>':'')
+    +(o.created?'<span class="oc-sworn">sworn '+o.created+'</span>':'')
+    +'</div></div>';
+}
+function openOath(){S.showOathForm=true;renderContent();setTimeout(function(){var el=document.getElementById('oLbl');if(el)el.focus();},100);}
+function cancelOath(){S.showOathForm=false;renderContent();}
+function addOath(){
+  var lbl=document.getElementById('oLbl')&&document.getElementById('oLbl').value.trim();if(!lbl)return;
+  S.oaths.push({id:Date.now().toString(),label:lbl,desc:(document.getElementById('oDesc')&&document.getElementById('oDesc').value.trim())||'',dueDate:(document.getElementById('oDue')&&document.getElementById('oDue').value)||'',category:(document.getElementById('oCat')&&document.getElementById('oCat').value.trim())||'',done:false,created:todayKey()});
+  sv('mc-o',S.oaths);S.showOathForm=false;renderContent();
+}
+function toggleOath(id){var o=S.oaths.find(function(x){return x.id===id;});if(o){o.done=!o.done;sv('mc-o',S.oaths);renderContent();}}
+function delOath(id){S.oaths=S.oaths.filter(function(o){return o.id!==id;});sv('mc-o',S.oaths);renderContent();}
+function editOath(id){
+  var o=S.oaths.find(function(x){return x.id===id;});if(!o)return;
+  var el=document.getElementById('oath-'+id);if(!el)return;
+  el.innerHTML='<div class="oc-top"><input class="oc-check" type="checkbox"'+(o.done?' checked':'')+' onchange="toggleOath(\''+id+'\')">'
+    +'<input class="edit-inp" id="eo-'+id+'" value="'+esc(o.label)+'" onkeydown="if(event.key===\'Enter\')saveOathEdit(\''+id+'\');if(event.key===\'Escape\')renderContent()">'
+    +'<button class="save-btn-sm" onclick="saveOathEdit(\''+id+'\')">SAVE</button>'
+    +'<button class="card-btn btn-del" onclick="renderContent()">ESC</button></div>';
+  var inp=document.getElementById('eo-'+id);if(inp)inp.focus();
+}
+function saveOathEdit(id){var inp=document.getElementById('eo-'+id);var v=inp&&inp.value.trim();if(!v)return;var o=S.oaths.find(function(x){return x.id===id;});if(o){o.label=v;sv('mc-o',S.oaths);renderContent();}}
+
+// ─────────────────────────────────────
+// CODEX (Character + Quotes + Log + Backup)
+// ─────────────────────────────────────
+function renderCodex(){
+  var c=S.character;
+  var totalBlocks=Object.values(S.dayPlan).reduce(function(s,d){return s+d.length;},0);
+  var allDates=[...new Set(Object.keys(S.timeLog).map(function(k){return k.split(':')[0];}))].sort().reverse();
+  var totalAll=Object.values(S.timeLog).reduce(function(s,v){return s+v;},0);
+  var today=todayKey(),now=new Date(),weekDays=[];
+  for(var i=6;i>=0;i--){var d=new Date(now);d.setDate(d.getDate()-i);var k=d.toISOString().split('T')[0];weekDays.push({key:k,name:d.toLocaleDateString('en-US',{weekday:'short'}).toUpperCase(),val:S.essence[k]||0});}
+  var weekTotal=weekDays.reduce(function(s,d){return s+d.val;},0);
+
+  var html='<div class="page">';
+
+  // Character
+  html+='<div class="sec-title"><div class="sec-title-left">📖 CHARACTER SHEET</div></div>';
+  html+='<div class="char-box"><div id="charDisp">'
+    +'<div class="char-name">'+esc(c.name||'Unnamed')+'</div>'
+    +'<div class="char-class">'+esc(c.cls||'Monk')+'</div>'
+    +(c.bio?'<div class="char-bio">'+esc(c.bio)+'</div>':'<div class="char-bio" style="font-style:italic;color:var(--text-muted)">Write about who you are becoming...</div>')
+    +'<button class="char-btn" onclick="editChar()">✦ EDIT CHARACTER</button>'
+    +'</div>'
+    +'<div id="charEdit" style="display:none">'
+    +'<div class="form-row" style="margin-bottom:8px"><div class="form-lbl">CHARACTER NAME</div><input class="form-inp" id="cName" value="'+esc(c.name||'')+'"></div>'
+    +'<div class="form-row" style="margin-bottom:8px"><div class="form-lbl">CLASS & PATH</div><input class="form-inp" id="cCls" value="'+esc(c.cls||'')+'"></div>'
+    +'<div class="form-row" style="margin-bottom:8px"><div class="form-lbl">WHO YOU ARE BECOMING</div><textarea class="char-edit-ta" id="cBio" placeholder="Describe the person you are forging yourself into...">'+esc(c.bio||'')+'</textarea></div>'
+    +'<div style="display:flex;gap:8px"><button class="char-btn" onclick="saveChar()">✦ SAVE</button><button class="btn-oath-cancel" onclick="cancelChar()">CANCEL</button></div>'
+    +'</div></div>';
+
+  // Virtues
+  html+='<div class="sec-title" style="margin-top:4px"><div class="sec-title-left">✦ MONK\'S VIRTUES</div></div>';
+  html+='<div class="virtues-grid">'
+    +'<div class="virtue"><div class="virtue-name">DISCIPLINES</div><div class="virtue-val">'+S.disciplines.length+' Daily Rites</div></div>'
+    +'<div class="virtue"><div class="virtue-name">QUEST BACKLOG</div><div class="virtue-val">'+S.taskBacklog.length+' Quests</div></div>'
+    +'<div class="virtue"><div class="virtue-name">ACTIVE OATHS</div><div class="virtue-val">'+S.oaths.filter(function(o){return!o.done;}).length+'</div></div>'
+    +'<div class="virtue"><div class="virtue-name">OATHS FULFILLED</div><div class="virtue-val">'+S.oaths.filter(function(o){return o.done;}).length+'</div></div>'
+    +'<div class="virtue"><div class="virtue-name">TODAY\'S FOCUS</div><div class="virtue-val">'+fmt(todayTotal())+'</div></div>'
+    +'<div class="virtue"><div class="virtue-name">ESSENCE TODAY</div><div class="virtue-val">'+todayEss()+' mg</div></div>'
+    +'</div>';
+
+  // Custom Quotes
+  html+='<div class="sec-title" style="margin-top:18px"><div class="sec-title-left">💬 MY QUOTES</div></div>';
+  html+='<div class="quote-mgr">';
+  if(S.customQuotes.length>0){
+    html+='<div class="quote-list">';
+    S.customQuotes.forEach(function(q,i){
+      html+='<div class="quote-item"><div><div class="qi-text">'+esc(q.q)+'"</div><div class="qi-author">— '+esc(q.a)+'</div></div><button class="qi-del" onclick="delQuote('+i+')">✕</button></div>';
+    });
+    html+='</div>';
+  } else {
+    html+='<div class="empty-hint">No custom quotes yet. Add ones that move you.</div>';
+  }
+  html+='<div class="quote-add-row">'
+    +'<input class="quote-add-inp" id="qText" placeholder="Enter a quote..." type="text">'
+    +'<input class="quote-add-inp" id="qAuthor" placeholder="— Author" type="text" style="margin-top:5px">'
+    +'<button class="quote-add-btn" onclick="addQuote()" style="margin-top:5px">+ ADD QUOTE</button>'
+    +'</div></div>';
+
+  // Chronicle / Log
+  html+='<div class="sec-title" style="margin-top:18px"><div class="sec-title-left">📖 CHRONICLE</div></div>';
+  if(totalAll>0)html+='<div class="log-total-box"><span class="log-total-lbl">TOTAL MEDITATION TIME</span><span class="log-total-val">'+fmt(totalAll)+'</span></div>';
+  html+='<div class="week-ess"><div class="week-ess-title">⚗ ESSENCE — THIS WEEK ('+weekTotal+'mg)</div><div class="week-grid">'+weekDays.map(function(d){return'<div class="wday"><div class="wday-name">'+d.name+'</div><div class="wday-val'+(d.val===0?' zero':'')+'">'+(d.val>0?d.val+'':' —')+'</div></div>';}).join('')+'</div></div>';
+  if(allDates.length===0)html+='<div class="empty-hint">No meditation sessions yet. Start a focus timer to begin your chronicle.</div>';
+  allDates.forEach(function(date){
+    var isToday=date===today,entries=Object.entries(S.timeLog).filter(function(e){return e[0].startsWith(date)&&e[1]>0;});
+    var dayTotal=entries.reduce(function(s,e){return s+e[1];},0);if(dayTotal===0)return;
+    html+='<div class="log-day-block"><div class="log-day-hdr'+(isToday?' tod':'')+'"><span>'+(isToday?'✦ TODAY':date)+'</span><span>'+fmt(dayTotal)+'</span></div>';
+    entries.sort(function(a,b){return b[1]-a[1];}).forEach(function(e){
+      var id=e[0].split(':').slice(1).join(':'),secs=e[1],pct=dayTotal>0?(secs/dayTotal)*100:0;
+      var name=getItemLabel(id);
+      html+='<div class="log-entry"><div class="log-ent-row"><span class="log-ent-name">'+esc(name)+'</span><span class="log-ent-time'+(isToday?' tod':'')+'">'+fmt(secs)+'</span></div><div class="log-bar-bg"><div class="log-bar-fill'+(isToday?' tod':'')+'" style="width:'+pct+'%"></div></div><div class="log-pct">'+Math.round(pct)+'%</div></div>';
+    });
+    html+='</div>';
+  });
+
+  // Backup
+  html+='<div class="sec-title" style="margin-top:18px"><div class="sec-title-left">⬇ DATA BACKUP</div></div>';
+  html+='<button class="export-btn" onclick="exportData()">EXPORT ALL DATA AS BACKUP FILE</button>';
+  html+='<label class="export-btn" style="cursor:pointer">RESTORE FROM BACKUP FILE<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>';
+  html+='</div>';
+  return html;
+}
+function getItemLabel(id){
+  var found=S.disciplines.find(function(d){return d.id===id;})||S.taskBacklog.find(function(t){return t.id===id;});
+  return found?found.label:'[unknown]';
+}
+function editChar(){document.getElementById('charDisp').style.display='none';document.getElementById('charEdit').style.display='block';}
+function cancelChar(){document.getElementById('charDisp').style.display='block';document.getElementById('charEdit').style.display='none';}
+function saveChar(){
+  var n=document.getElementById('cName').value.trim(),cl=document.getElementById('cCls').value.trim(),b=document.getElementById('cBio').value.trim();
+  if(n)S.character.name=n;if(cl)S.character.cls=cl;S.character.bio=b;
+  sv('mc-ch',S.character);document.getElementById('hdrSub').textContent=S.character.cls||'Path of the Awakened';renderContent();
+}
+function addQuote(){
+  var qt=document.getElementById('qText'),qa=document.getElementById('qAuthor');
+  var text=qt&&qt.value.trim(),author=qa&&qa.value.trim();
+  if(!text)return;
+  S.customQuotes.push({q:text,a:author||'Unknown'});
+  sv('mc-cq',S.customQuotes);if(qt)qt.value='';if(qa)qa.value='';renderContent();pickDailyQuote();
+}
+function delQuote(i){S.customQuotes.splice(i,1);sv('mc-cq',S.customQuotes);renderContent();pickDailyQuote();}
+function exportData(){
+  var data={disciplines:S.disciplines,taskBacklog:S.taskBacklog,dailyQuests:S.dailyQuests,oaths:S.oaths,checked:S.checked,timeLog:S.timeLog,essence:S.essence,dayPlan:S.dayPlan,character:S.character,customQuotes:S.customQuotes,exported:new Date().toISOString()};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='monks-codex-'+todayKey()+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+function importData(e){
+  var file=e.target&&e.target.files&&e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var d=JSON.parse(ev.target.result);
+      var map={disciplines:'mc-d',taskBacklog:'mc-tb',dailyQuests:'mc-dq',oaths:'mc-o',checked:'mc-c',timeLog:'mc-t',essence:'mc-e',dayPlan:'mc-dp',character:'mc-ch',customQuotes:'mc-cq'};
+      Object.keys(map).forEach(function(k){if(d[k]!==undefined){S[k]=d[k];sv(map[k],d[k]);}});
+      initHeader();renderContent();alert('✦ Codex restored successfully.');
+    }catch(err){alert('Failed to read backup file.');}
+  };
+  reader.readAsText(file);
+}
+
+// ─────────────────────────────────────
+// BACKGROUND-SAFE TIMER
+// ─────────────────────────────────────
+function timerCurrentSecs(){
+  if(!timer.target)return 0;
+  if(!timer.running)return timer.accSecs;
+  return timer.accSecs+Math.floor((Date.now()-timer.startedAt)/1000);
+}
+function clickTimer(id,label){
+  if(timer.target&&timer.target.id===id&&timer.running)pauseTimer();
+  else if(timer.target&&timer.target.id===id&&!timer.running)resumeTimer();
+  else startTimer({id:id,label:label});
+}
+function startTimer(item){
+  if(timer.running&&timer.target){
+    clearInterval(timer.interval);clearInterval(timer.pulseInterval);
+    logTime(timer.target,timerCurrentSecs());
+  }
+  timer.target=item;timer.accSecs=0;timer.startedAt=Date.now();timer.running=true;
+  clearInterval(timer.interval);
+  timer.interval=setInterval(function(){timer.displaySecs=timerCurrentSecs();updateTimerUI();},1000);
+  clearInterval(timer.pulseInterval);
+  timer.pulseInterval=setInterval(function(){timer.pulse=!timer.pulse;updateTimerUI();},1000);
+  updateTimerUI();renderContent();
+}
+function pauseTimer(){
+  timer.accSecs=timerCurrentSecs();timer.running=false;
+  clearInterval(timer.interval);updateTimerUI();renderContent();
+}
+function resumeTimer(){
+  timer.startedAt=Date.now();timer.running=true;
+  clearInterval(timer.interval);
+  timer.interval=setInterval(function(){timer.displaySecs=timerCurrentSecs();updateTimerUI();},1000);
+  updateTimerUI();renderContent();
+}
+function stopTimer(){
+  clearInterval(timer.interval);clearInterval(timer.pulseInterval);
+  logTime(timer.target,timerCurrentSecs());
+  timer.target=null;timer.running=false;timer.accSecs=0;timer.displaySecs=0;timer.pulse=false;
+  updateTimerUI();renderContent();updateStats();
+}
+function logTime(target,secs){
+  if(!target||secs===0)return;
+  var key=todayKey()+':'+target.id;
+  S.timeLog[key]=(S.timeLog[key]||0)+secs;sv('mc-t',S.timeLog);
+}
+// Recalculate when page becomes visible again (after minimize / screen lock)
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&timer.running){
+    timer.displaySecs=timerCurrentSecs();
+    updateTimerUI();
+    // refresh any logged-time badges visible on screen
+    if(S.tab==='rites'||S.tab==='quests')renderContent();
+  }
+});
+function updateTimerUI(){
+  var dock=document.getElementById('timerDock'),clock=document.getElementById('timerClock');
+  var info=document.getElementById('timerInfo'),btns=document.getElementById('timerBtns');
+  var secs=timerCurrentSecs();
+  clock.textContent=fmt(secs);
+  if(timer.running){dock.className='timer-dock running';clock.className='timer-clock run'+(timer.pulse?' pulse':'');}
+  else if(timer.target){dock.className='timer-dock';clock.className='timer-clock ht';}
+  else{dock.className='timer-dock';clock.className='timer-clock';}
+  if(timer.target)info.innerHTML='<div class="timer-trk-lbl">IN FOCUS</div><div class="timer-trk-name">'+esc(timer.target.label)+'</div>';
+  else info.innerHTML='<div class="timer-hint">Select a rite or quest to begin...</div>';
+  var b='';
+  if(timer.target&&!timer.running)b+='<button class="t-btn t-resume" onclick="resumeTimer()">▶ RESUME</button>';
+  if(timer.running)b+='<button class="t-btn t-pause" onclick="pauseTimer()">⏸ PAUSE</button>';
+  if(timer.target)b+='<button class="t-btn t-stop" onclick="stopTimer()">■ RECORD</button>';
+  btns.innerHTML=b;
+  document.getElementById('hdrFocus').textContent=fmt(todayTotal())+' meditated';
+}
+
+// ─────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────
+load();initHeader();renderContent();updateTimerUI();
+
+// ─────────────────────────────────────
+// PWA — Manifest + Service Worker
+// Injected dynamically so the app works
+// as a single self-contained HTML file
+// ─────────────────────────────────────
+(function(){
+  // Build a simple SVG icon (gold sword on dark background)
+  var iconSvg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#080610"/><rect x="245" y="60" width="22" height="280" fill="#c9a84c" rx="4"/><polygon points="256,40 236,80 276,80" fill="#c9a84c"/><rect x="200" y="310" width="112" height="20" fill="#c9a84c" rx="4"/><rect x="240" y="330" width="32" height="80" fill="#7a6030" rx="4"/><circle cx="256" cy="256" r="8" fill="#080610"/></svg>';
+  var iconUrl='data:image/svg+xml;base64,'+btoa(iconSvg);
+
+  // Inject manifest
+  var manifest={
+    name:"The Monk's Codex",
+    short_name:"Monk's Codex",
+    description:"Daily discipline tracker, planner, and life organizer",
+    start_url:".",
+    display:"standalone",
+    background_color:"#080610",
+    theme_color:"#080610",
+    orientation:"portrait",
+    icons:[
+      {src:iconUrl,sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"},
+      {src:iconUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}
+    ]
+  };
+  var manifestBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  var manifestUrl=URL.createObjectURL(manifestBlob);
+  document.getElementById('pwaManifest').href=manifestUrl;
+
+  // Register service worker for offline support + installability
+  if('serviceWorker' in navigator){
+    var swCode=[
+      "var CACHE='monks-codex-v3';",
+      "self.addEventListener('install',function(e){",
+      "  e.waitUntil(caches.open(CACHE).then(function(c){",
+      "    return c.addAll([self.location.href]);",
+      "  }).then(function(){return self.skipWaiting();}));",
+      "});",
+      "self.addEventListener('activate',function(e){",
+      "  e.waitUntil(clients.claim());",
+      "});",
+      "self.addEventListener('fetch',function(e){",
+      "  e.respondWith(caches.match(e.request).then(function(r){",
+      "    return r||fetch(e.request).then(function(res){",
+      "      var clone=res.clone();",
+      "      caches.open(CACHE).then(function(c){c.put(e.request,clone);});",
+      "      return res;",
+      "    });",
+      "  }));",
+      "});"
+    ].join('\n');
+    var swBlob=new Blob([swCode],{type:'application/javascript'});
+    var swUrl=URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl,{scope:'./'}).catch(function(){});
+  }
+})();
+
+</script>
+</body>
+</html>
